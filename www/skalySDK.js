@@ -16,11 +16,24 @@ SkalySDK.prototype.start = function (rootKey, successCallback, errorCallback) {
 /**
  * Add scale
  *
+ * @param {string} supportedScales Comma-separated string of what scales to support (empty string = all scales) (Example: "withings,virtual_scale")
  * @param {Function} successCallback The function to call when the scale is connected
  * @param {Function} errorCallback The function to call when there is an error getting the scale connected or the user canceled. (OPTIONAL)
  */
 SkalySDK.prototype.addScale = function (supportedScales, successCallback, errorCallback) {
     exec(successCallback, errorCallback, 'SkalySDK', 'addScale', [supportedScales]);
+};
+
+
+/**
+ * Add watch
+ *
+ * @param {string} supportedWatches Comma-separated string of what watches to support (empty string = all watches) (Example: "withings")
+ * @param {Function} successCallback The function to call when the watch is connected
+ * @param {Function} errorCallback The function to call when there is an error getting the watch connected or the user canceled. (OPTIONAL)
+ */
+SkalySDK.prototype.addWatch = function (supportedWatches, successCallback, errorCallback) {
+    exec(successCallback, errorCallback, 'SkalySDK', 'addWatch', [supportedWatches]);
 };
 
 /**
@@ -47,6 +60,15 @@ SkalySDK.prototype.startReading = function (successCallback, errorCallback) {
 };
 
 /**
+ * Reads current user watch data
+ *
+ * @returns A callback with an array of WatchReply objects in JSON in the successCallback. 
+ */
+SkalySDK.prototype.startReadingWatch = function (successCallback, errorCallback) {
+    exec(successCallback, errorCallback, 'SkalySDK', 'startReadingWatch', []);
+};
+
+/**
  * Allows consent for a given handle
  * @param {string} to Allow to send data to this root key (most likely the same as the dashboard root key)
  * @param {string} handle Allow sending data for this user / handle
@@ -54,7 +76,7 @@ SkalySDK.prototype.startReading = function (successCallback, errorCallback) {
  * @param {Function} errorCallback The function to call when there is an error or the user declined (OPTIONAL)
  */
 SkalySDK.prototype.allowAccessToData = function (to, handle, successCallback, errorCallback) {
-    exec(successCallback, errorCallback, 'SkalySDK', 'allowAccessToData', []);
+    exec(successCallback, errorCallback, 'SkalySDK', 'allowAccessToData', [to, handle]);
 };
 
 var skalySDK = new SkalySDK();

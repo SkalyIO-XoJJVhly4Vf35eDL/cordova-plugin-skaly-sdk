@@ -1,8 +1,9 @@
 {
-  "name": "cordova-plugin-skaly-sdk",
-  "version": "0.1.3",
+  "name": "@skaly/cordova-plugin-skaly-sdk",
+  "version": "0.2.1",
   "description": "Skaly SDK Cordova Plugin",
   "types": "./types/index.d.ts",
+  "private": false,
   "cordova": {
     "id": "cordova-plugin-skaly-sdk",
     "platforms": [

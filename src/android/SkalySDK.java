@@ -1,21 +1,3 @@
-/*
-       Licensed to the Apache Software Foundation (ASF) under one
-       or more contributor license agreements.  See the NOTICE file
-       distributed with this work for additional information
-       regarding copyright ownership.  The ASF licenses this file
-       to you under the Apache License, Version 2.0 (the
-       "License"); you may not use this file except in compliance
-       with the License.  You may obtain a copy of the License at
-
-         http://www.apache.org/licenses/LICENSE-2.0
-
-       Unless required by applicable law or agreed to in writing,
-       software distributed under the License is distributed on an
-       "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-       KIND, either express or implied.  See the License for the
-       specific language governing permissions and limitations
-       under the License.
-*/
 package io.skaly.cordova.sdk;
 
 import android.app.Activity;
@@ -35,10 +17,11 @@ import java.util.List;
 
 import io.skaly.sdk.Sex;
 import io.skaly.sdk.Skaly;
+import io.skaly.sdk.watches.WatchReply;
+import io.skaly.sdk.watches.WatchReplyKt;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 import kotlin.jvm.functions.Function0;
-import com.beust.klaxon.Klaxon;
 import io.skaly.sdk.scales.ScaleReply;
 import io.skaly.sdk.scales.ScaleReplyKt;
 
@@ -90,7 +73,6 @@ public class SkalySDK extends CordovaPlugin {
         else if ("addScale".equals(action)) {
             String supportedScalesStr = args.getString(0);
             String[] supportedScales = new String[0];
-            System.out.println("supportedScalesStr" + supportedScalesStr + ";");
             if(supportedScalesStr.length() > 0) {
                 supportedScales = supportedScalesStr.split(",");
             }
@@ -106,6 +88,31 @@ public class SkalySDK extends CordovaPlugin {
                             }
                             else {
                                 callbackContext.error("Failed adding scale");
+                            }
+                            return null;
+                        }
+                    });
+                }
+            });
+        }
+        else if ("addWatch".equals(action)) {
+            String supportedWatchStr = args.getString(0);
+            String[] supportedWatches = new String[0];
+            if(supportedWatchStr.length() > 0) {
+                supportedWatches = supportedWatchStr.split(",");
+            }
+            final List<String> supportedWatchesList = Arrays.asList(supportedWatches);
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    skaly.addWatch(supportedWatchesList, new Function1<Boolean, Unit>() {
+                        @Override
+                        public Unit invoke(Boolean success) {
+                            if(success) {
+                                callbackContext.success();
+                            }
+                            else {
+                                callbackContext.error("Failed adding watch");
                             }
                             return null;
                         }
@@ -150,7 +157,10 @@ public class SkalySDK extends CordovaPlugin {
                         @Override
                         public Unit invoke(Boolean success, String scannedHandle, ScaleReply scaleReply) {
                             try {
-                                callbackContext.success(new JSONObject(ScaleReplyKt.toJSONString(scaleReply)));
+                                JSONObject json = new JSONObject();
+                                json.put("scaleReply", new JSONObject(ScaleReplyKt.toJSONString(scaleReply)));
+                                json.put("scannedHandle", scannedHandle);
+                                callbackContext.success(json);
                             }
                             catch(Exception e) {
                                 e.printStackTrace();
@@ -158,6 +168,29 @@ public class SkalySDK extends CordovaPlugin {
                             }
                             return null;
                         }
+                    });
+                }
+            });
+        }
+        else if ("startReadingWatch".equals(action)) {
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    skaly.startReadingWatch((success, watchReplies) -> {
+                        try {
+                            JSONArray watchRepliesJsonArr = new JSONArray();
+                            for(WatchReply wr : watchReplies) {
+                                watchRepliesJsonArr.put(WatchReplyKt.toJSONString(wr));
+                            }
+                            JSONObject json = new JSONObject();
+                            json.put("watchReplies", watchRepliesJsonArr);
+                            callbackContext.success(json);
+                        }
+                        catch(Exception e) {
+                            e.printStackTrace();
+                            callbackContext.error(e.getMessage());
+                        }
+                        return Unit.INSTANCE;
                     });
                 }
             });
