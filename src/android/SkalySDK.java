@@ -59,7 +59,6 @@ public class SkalySDK extends CordovaPlugin {
      */
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         Handler mainHandler = new Handler(activity.getMainLooper());
-        System.out.println(args);
         if ("start".equals(action)) {
             String rootKey = args.getString(0);
             mainHandler.post(new Runnable() {
@@ -70,6 +69,18 @@ public class SkalySDK extends CordovaPlugin {
                 }
             });
         }
+        // "Has" device commands
+        else if ("hasScale".equals(action)) {
+            JSONObject json = new JSONObject();
+            json.put("hasScale", skaly.hasScale());
+            callbackContext.success(json);
+        }
+        else if ("hasWatch".equals(action)) {
+            JSONObject json = new JSONObject();
+            json.put("hasWatch", skaly.hasWatch());
+            callbackContext.success(json);
+        }
+        // end "has" device commands
         else if ("addScale".equals(action)) {
             String supportedScalesStr = args.getString(0);
             String[] supportedScales = new String[0];

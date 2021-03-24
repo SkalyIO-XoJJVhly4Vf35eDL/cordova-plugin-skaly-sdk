@@ -14,6 +14,24 @@ SkalySDK.prototype.start = function (rootKey, successCallback, errorCallback) {
 };
 
 /**
+ * Check if user has a scale connected
+ *
+ * @returns A json object containing a boolean value at the key "hasScale". Example: {"hasScale": true}
+ */
+SkalySDK.prototype.hasScale = function (successCallback, errorCallback) {
+    exec(successCallback, errorCallback, 'SkalySDK', 'hasScale', []);
+};
+
+/**
+ * Check if user has a watch connected
+ *
+ * @returns A json object containing a boolean value at the key "hasWatch". Example: {"hasWatch": true}
+ */
+SkalySDK.prototype.hasWatch = function (successCallback, errorCallback) {
+    exec(successCallback, errorCallback, 'SkalySDK', 'hasWatch', []);
+};
+
+/**
  * Add scale
  *
  * @param {string} supportedScales Comma-separated string of what scales to support (empty string = all scales) (Example: "withings,virtual_scale")
@@ -23,7 +41,6 @@ SkalySDK.prototype.start = function (rootKey, successCallback, errorCallback) {
 SkalySDK.prototype.addScale = function (supportedScales, successCallback, errorCallback) {
     exec(successCallback, errorCallback, 'SkalySDK', 'addScale', [supportedScales]);
 };
-
 
 /**
  * Add watch
@@ -51,9 +68,9 @@ SkalySDK.prototype.addIdentity = function (handle, sex, birthday, length, succes
 };
 
 /**
- * Reads current user data
+ * Reads current user scale data
  *
- * @returns A callback with scannedHandle (the string) + an array of ScaleReply objects in JSON in the successCallback. 
+ * @returns A callback with scannedHandle (the string) + an array of ScaleReply objects in JSON in the successCallback.
  */
 SkalySDK.prototype.startReading = function (successCallback, errorCallback) {
     exec(successCallback, errorCallback, 'SkalySDK', 'startReading', []);
