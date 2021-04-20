@@ -168,6 +168,10 @@ public class SkalySDK extends CordovaPlugin {
                         @Override
                         public Unit invoke(Boolean success, String scannedHandle, ScaleReply scaleReply) {
                             try {
+                                if(scaleReply == null) {
+                                    callbackContext.error("Didn't get a reading, handle (contains error message): " + scannedHandle);
+                                    return null;
+                                }
                                 JSONObject json = new JSONObject();
                                 json.put("scaleReply", new JSONObject(ScaleReplyKt.toJSONString(scaleReply)));
                                 json.put("scannedHandle", scannedHandle);
@@ -226,6 +230,13 @@ public class SkalySDK extends CordovaPlugin {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) 
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        skaly.onActivityResult(requestCode, resultCode, data);
     }
 
 }
