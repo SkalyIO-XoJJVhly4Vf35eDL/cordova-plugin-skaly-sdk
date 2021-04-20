@@ -1,6 +1,7 @@
 package io.skaly.cordova.sdk;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Handler;
 
 import org.apache.cordova.CallbackContext;
@@ -47,6 +48,7 @@ public class SkalySDK extends CordovaPlugin {
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
         this.activity = cordova.getActivity();
+        cordova.setActivityResultCallback (this);
     }
 
     /**
@@ -233,7 +235,7 @@ public class SkalySDK extends CordovaPlugin {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) 
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
         skaly.onActivityResult(requestCode, resultCode, data);
