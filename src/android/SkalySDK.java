@@ -20,6 +20,7 @@ import io.skaly.sdk.Sex;
 import io.skaly.sdk.Skaly;
 import io.skaly.sdk.watches.WatchReply;
 import io.skaly.sdk.watches.WatchReplyKt;
+import kotlin.Pair;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 import kotlin.jvm.functions.Function0;
@@ -48,16 +49,16 @@ public class SkalySDK extends CordovaPlugin {
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
         this.activity = cordova.getActivity();
-        cordova.setActivityResultCallback (this);
+        cordova.setActivityResultCallback(this);
     }
 
     /**
      * Executes the request and returns PluginResult.
      *
-     * @param action            The action to execute.
-     * @param args              JSONArry of arguments for the plugin.
-     * @param callbackContext   The callback id used when calling back into JavaScript.
-     * @return                  True if the action was valid, false if not.
+     * @param action          The action to execute.
+     * @param args            JSONArry of arguments for the plugin.
+     * @param callbackContext The callback id used when calling back into JavaScript.
+     * @return True if the action was valid, false if not.
      */
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         Handler mainHandler = new Handler(activity.getMainLooper());
@@ -76,8 +77,7 @@ public class SkalySDK extends CordovaPlugin {
             JSONObject json = new JSONObject();
             json.put("hasScale", skaly.hasScale());
             callbackContext.success(json);
-        }
-        else if ("hasWatch".equals(action)) {
+        } else if ("hasWatch".equals(action)) {
             JSONObject json = new JSONObject();
             json.put("hasWatch", skaly.hasWatch());
             callbackContext.success(json);
@@ -86,7 +86,7 @@ public class SkalySDK extends CordovaPlugin {
         else if ("addScale".equals(action)) {
             String supportedScalesStr = args.getString(0);
             String[] supportedScales = new String[0];
-            if(supportedScalesStr.length() > 0) {
+            if (supportedScalesStr.length() > 0) {
                 supportedScales = supportedScalesStr.split(",");
             }
             final List<String> supportedScalesList = Arrays.asList(supportedScales);
@@ -96,10 +96,9 @@ public class SkalySDK extends CordovaPlugin {
                     skaly.addScale(supportedScalesList, new Function1<Boolean, Unit>() {
                         @Override
                         public Unit invoke(Boolean success) {
-                            if(success) {
+                            if (success) {
                                 callbackContext.success();
-                            }
-                            else {
+                            } else {
                                 callbackContext.error("Failed adding scale");
                             }
                             return null;
@@ -107,11 +106,10 @@ public class SkalySDK extends CordovaPlugin {
                     });
                 }
             });
-        }
-        else if ("addWatch".equals(action)) {
+        } else if ("addWatch".equals(action)) {
             String supportedWatchStr = args.getString(0);
             String[] supportedWatches = new String[0];
-            if(supportedWatchStr.length() > 0) {
+            if (supportedWatchStr.length() > 0) {
                 supportedWatches = supportedWatchStr.split(",");
             }
             final List<String> supportedWatchesList = Arrays.asList(supportedWatches);
@@ -121,10 +119,9 @@ public class SkalySDK extends CordovaPlugin {
                     skaly.addWatch(supportedWatchesList, new Function1<Boolean, Unit>() {
                         @Override
                         public Unit invoke(Boolean success) {
-                            if(success) {
+                            if (success) {
                                 callbackContext.success();
-                            }
-                            else {
+                            } else {
                                 callbackContext.error("Failed adding watch");
                             }
                             return null;
@@ -132,10 +129,9 @@ public class SkalySDK extends CordovaPlugin {
                     });
                 }
             });
-        }
-        else if ("addIdentity".equals(action)) {
+        } else if ("addIdentity".equals(action)) {
             String handle = args.getString(0);
-            Sex sex = args.getInt(1)  == 0 ? Sex.Male : Sex.Female;
+            Sex sex = args.getInt(1) == 0 ? Sex.Male : Sex.Female;
             Date birthday = new Date(args.getLong(2) * 1000);
             int length = args.getInt(3);
             mainHandler.post(new Runnable() {
@@ -145,24 +141,21 @@ public class SkalySDK extends CordovaPlugin {
                         skaly.addIdentity(handle, sex, birthday, length, new Function1<Boolean, Unit>() {
                             @Override
                             public Unit invoke(Boolean success) {
-                                if(success) {
+                                if (success) {
                                     callbackContext.success();
-                                }
-                                else {
+                                } else {
                                     callbackContext.error("Failed adding user");
                                 }
                                 return null;
                             }
                         });
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                         callbackContext.error(e.getMessage());
                     }
                 }
             });
-        }
-        else if ("startReading".equals(action)) {
+        } else if ("startReading".equals(action)) {
             mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -170,7 +163,7 @@ public class SkalySDK extends CordovaPlugin {
                         @Override
                         public Unit invoke(Boolean success, String scannedHandle, ScaleReply scaleReply) {
                             try {
-                                if(scaleReply == null) {
+                                if (scaleReply == null) {
                                     callbackContext.error("Didn't get a reading, handle (contains error message): " + scannedHandle);
                                     return null;
                                 }
@@ -178,8 +171,7 @@ public class SkalySDK extends CordovaPlugin {
                                 json.put("scaleReply", new JSONObject(ScaleReplyKt.toJSONString(scaleReply)));
                                 json.put("scannedHandle", scannedHandle);
                                 callbackContext.success(json);
-                            }
-                            catch(Exception e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
                                 callbackContext.error(e.getMessage());
                             }
@@ -188,22 +180,53 @@ public class SkalySDK extends CordovaPlugin {
                     });
                 }
             });
-        }
-        else if ("startReadingWatch".equals(action)) {
+        } else if ("getScaleData".equals(action)) {
+            if (skaly.getHandles().length == 0) {
+                callbackContext.error("No handles registered yet!");
+                return false;
+            }
+            String handle = args.getString(0) == null ? skaly.getHandles()[0] : args.getString(0);
+            Long fromUID = args.getLong(1);
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Pair<Long, List<ScaleReply>> replies;
+                        if(fromUID == 0) {
+                            replies = skaly.userScaleData(handle);
+                        }
+                        else {
+                            replies = skaly.userScaleDataBeforeHandle(handle, fromUID);
+                        }
+                        
+                        JSONObject json = new JSONObject();
+                        JSONArray scaleRepliesJsonArr = new JSONArray();
+                        for (ScaleReply sr : replies.getSecond()) {
+                            scaleRepliesJsonArr.put(new JSONObject(ScaleReplyKt.toJSONString(sr)));
+                        }
+                        json.put("scaleReplies", scaleRepliesJsonArr);
+                        json.put("lastUID", replies.getFirst());
+                        callbackContext.success(json);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        callbackContext.error(e.getMessage());
+                    }
+                }
+            });
+        } else if ("getWatchData".equals(action)) {
             mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
                     skaly.startReadingWatch((success, watchReplies) -> {
                         try {
                             JSONArray watchRepliesJsonArr = new JSONArray();
-                            for(WatchReply wr : watchReplies) {
-                                watchRepliesJsonArr.put(WatchReplyKt.toJSONString(wr));
+                            for (WatchReply wr : watchReplies) {
+                                watchRepliesJsonArr.put(new JSONObject(WatchReplyKt.toJSONString(wr)));
                             }
                             JSONObject json = new JSONObject();
                             json.put("watchReplies", watchRepliesJsonArr);
                             callbackContext.success(json);
-                        }
-                        catch(Exception e) {
+                        } catch (Exception e) {
                             e.printStackTrace();
                             callbackContext.error(e.getMessage());
                         }
@@ -211,8 +234,7 @@ public class SkalySDK extends CordovaPlugin {
                     });
                 }
             });
-        }
-        else if ("allowAccessToData".equals(action)) {
+        } else if ("allowAccessToData".equals(action)) {
             String to = args.getString(0);
             String handle = args.getString(1);
             mainHandler.post(new Runnable() {
@@ -227,16 +249,14 @@ public class SkalySDK extends CordovaPlugin {
                     });
                 }
             });
-        }
-        else {
+        } else {
             return false;
         }
         return true;
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         skaly.onActivityResult(requestCode, resultCode, data);
     }

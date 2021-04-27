@@ -77,12 +77,23 @@ SkalySDK.prototype.startReading = function (successCallback, errorCallback) {
 };
 
 /**
+ * Gets scale data for handle
+ *
+ * @param {string} handle the handle of which data to retrieve
+ * @param {number} uid retrieve all data after this uid (useful for retrieving large amounts of data)
+ * @returns A callback with an array of ScaleReply objects in JSON + the last UID index in the successCallback.
+ */
+SkalySDK.prototype.getScaleData = function (handle, uid, successCallback, errorCallback) {
+    exec(successCallback, errorCallback, 'SkalySDK', 'getScaleData', [handle, uid]);
+};
+
+/**
  * Reads current user watch data
  *
  * @returns A callback with an array of WatchReply objects in JSON in the successCallback. 
  */
-SkalySDK.prototype.startReadingWatch = function (successCallback, errorCallback) {
-    exec(successCallback, errorCallback, 'SkalySDK', 'startReadingWatch', []);
+SkalySDK.prototype.getWatchData = function (successCallback, errorCallback) {
+    exec(successCallback, errorCallback, 'SkalySDK', 'getWatchData', []);
 };
 
 /**
