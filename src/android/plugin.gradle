@@ -1,9 +1,9 @@
 repositories {
     maven { url 'https://jitpack.io' }
-    maven { url 'https://dl.bintray.com/skaly/sdk' }
+    maven { url 'https://mvn.skaly.io' }
 }
 
 dependencies {
-    implementation 'io.skaly.libraries:android:0.3.6'
+    implementation 'io.skaly.libraries:android:0.3.5'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.2.31"
 }
